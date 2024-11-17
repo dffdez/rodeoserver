@@ -1,0 +1,56 @@
+services:
+  database:
+    image: postgres:14
+    container_name: rodeo_database
+    restart: always
+    environment:
+      POSTGRES_DB: rodeo
+      POSTGRES_USER: rodeo
+      POSTGRES_PASSWORD: votned-1ryCro
+    ports:
+        - "5432:5432"
+    volumes:
+      - ./Database:/docker-entrypoint-initdb.d
+      - dbdata:/var/lib/postgresql/data
+    networks:
+      - rodeo_network
+
+  server:
+      container_name: rodeo_server
+      image: rodeo_server
+      restart: always
+      ports:
+        - "5000:5000"
+      volumes: 
+      - media_articles:/rodeo_server/media/articles
+      - media_video:/rodeo_server/media/video
+      - media_documents:/rodeo_server/media/documents
+      - media_icons:/rodeo_server/media/icons
+      networks:
+      - rodeo_network
+      
+  engine:
+      container_name: rodeo_engine
+      image: rodeo_engine
+      restart: always
+      depends_on:
+        - server
+      networks:
+      - rodeo_network
+
+
+networks:
+  rodeo_network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    name: dbdata
+  media_articles:
+      name: media_articles
+  media_video:
+      name: media_video
+  media_documents:
+      name: media_documents
+  media_icons:
+      name: media_icons

@@ -1,0 +1,122 @@
+
+
+CREATE TABLE USUARIOS (
+	Alias VARCHAR(20) NOT NULL,
+	Contrasenia VARCHAR(20) NOT NULL,
+	Nombre VARCHAR(20) NOT NULL,
+	Apellido VARCHAR(20) NOT NULL,
+	Email VARCHAR(25) NOT NULL UNIQUE,
+	Admin BOOLEAN DEFAULT FALSE,
+	NotificationToken TEXT,
+	PRIMARY KEY(Alias, Email)
+);
+
+
+
+CREATE TABLE VALORES (
+	Simbolo VARCHAR(25) NOT NULL,
+	Nombre VARCHAR(25) NOT NULL,
+	AC VARCHAR(5) NOT NULL,
+	Estado VARCHAR(10) NOT NULL DEFAULT '0',
+	ValorEntrada NUMERIC NOT NULL DEFAULT 0,
+	TiempoSalida NUMERIC NOT NULL DEFAULT 0,
+	PRIMARY KEY(Simbolo)
+);
+
+CREATE TABLE VALORESREF (
+	Simbolo VARCHAR(25) NOT NULL,
+	Nombre VARCHAR(25) NOT NULL,
+	AC VARCHAR(5) NOT NULL,
+	Estado VARCHAR(10) NOT NULL DEFAULT '0',
+	ValorEntrada NUMERIC NOT NULL DEFAULT 0,
+	TiempoSalida NUMERIC NOT NULL DEFAULT 0,
+	PRIMARY KEY(Simbolo)
+);
+
+CREATE TABLE FAVORITOS (
+	Simbolo VARCHAR(25) NOT NULL,
+	Alias VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE LIMITES (
+	Simbolo VARCHAR(25) NOT NULL,
+	e_apx_rsi_min NUMERIC NOT NULL DEFAULT 0,
+	e_apx_rsi_max NUMERIC NOT NULL DEFAULT 0,
+	e_apx_stoch_min NUMERIC NOT NULL DEFAULT 0,
+	e_apx_stoch_max NUMERIC NOT NULL DEFAULT 0,
+	e_ent_rsi_min NUMERIC NOT NULL DEFAULT 0,
+	e_ent_rsi_max NUMERIC NOT NULL DEFAULT 0,
+	e_ent_stoch_min NUMERIC NOT NULL DEFAULT 0,
+	e_ent_stoch_max NUMERIC NOT NULL DEFAULT 0,
+	stp_apx_stoch_min NUMERIC NOT NULL DEFAULT 0,
+	stp_apx_stoch_max NUMERIC NOT NULL DEFAULT 0,
+	stp_sal_stoch_min NUMERIC NOT NULL DEFAULT 0,
+	ssl_apx_value_min NUMERIC NOT NULL DEFAULT 0,
+	ssl_apx_value_max NUMERIC NOT NULL DEFAULT 0,
+	ssl_sal_value_min NUMERIC NOT NULL DEFAULT 0,
+	PRIMARY KEY(Simbolo)
+);
+
+CREATE TABLE LIMITESREF (
+	Simbolo VARCHAR(25) NOT NULL,
+	e_apx_rsi_min NUMERIC NOT NULL DEFAULT 0,
+	e_apx_rsi_max NUMERIC NOT NULL DEFAULT 0,
+	e_apx_stoch_min NUMERIC NOT NULL DEFAULT 0,
+	e_apx_stoch_max NUMERIC NOT NULL DEFAULT 0,
+	e_ent_rsi_min NUMERIC NOT NULL DEFAULT 0,
+	e_ent_rsi_max NUMERIC NOT NULL DEFAULT 0,
+	e_ent_stoch_min NUMERIC NOT NULL DEFAULT 0,
+	e_ent_stoch_max NUMERIC NOT NULL DEFAULT 0,
+	stp_apx_stoch_min NUMERIC NOT NULL DEFAULT 0,
+	stp_apx_stoch_max NUMERIC NOT NULL DEFAULT 0,
+	stp_sal_stoch_min NUMERIC NOT NULL DEFAULT 0,
+	ssl_apx_value_min NUMERIC NOT NULL DEFAULT 0,
+	ssl_apx_value_max NUMERIC NOT NULL DEFAULT 0,
+	ssl_sal_value_min NUMERIC NOT NULL DEFAULT 0,
+	PRIMARY KEY(Simbolo)
+);
+
+CREATE TABLE TIEMPOS (
+	Refresco INTEGER NOT NULL DEFAULT 1,
+	Salida INTEGER NOT NULL DEFAULT 60,
+	NuevoComienzo INTEGER NOT NULL DEFAULT 600,
+	ValorPrevio INTEGER NOT NULL DEFAULT 60
+);
+
+CREATE TABLE BLOG (
+	Titulo VARCHAR(50) NOT NULL,
+	Articulo TEXT,
+	Imagen TEXT,
+	Fecha TIMESTAMP,
+	Tipo VARCHAR(10) NOT NULL DEFAULT 'post',
+	PRIMARY KEY(Titulo)
+);
+
+CREATE TABLE CHAT (
+	Alias VARCHAR(15) NOT NULL,
+	Usuario VARCHAR(10) NOT NULL,
+	Mensaje TEXT NOT NULL,
+	Fecha TIMESTAMP,
+	Estado VARCHAR(10) NOT NULL DEFAULT '0'
+);
+
+CREATE TABLE SEMAFORO (
+	neutral VARCHAR(15) NOT NULL,
+	ent_apx VARCHAR(15) NOT NULL,
+	ent_ent VARCHAR(15) NOT NULL,
+	sal_tp_apx VARCHAR(15) NOT NULL,
+	sal_tp_sal VARCHAR(15) NOT NULL,
+	sal_sl_apx VARCHAR(15) NOT NULL,
+	sal_sl_sal VARCHAR(15) NOT NULL
+);
+
+INSERT INTO SEMAFORO (neutral, ent_apx, ent_ent, sal_tp_apx, sal_tp_sal, sal_sl_apx, sal_sl_sal)
+VALUES ('#fff', '#fff', '#fff', '#fff', '#fff', '#fff', '#fff');
+
+INSERT INTO USUARIOS (Alias, Contrasenia, Nombre, Apellido, Email, Admin) VALUES ('admin', 'admin', 'admin', 'admin', 'admin@admin.com', TRUE);
+
+INSERT INTO VALORESREF (Simbolo, Nombre, Estado, AC) VALUES ('NDAQ', 'NASDAQ', DEFAULT, 'A');
+INSERT INTO VALORESREF (Simbolo, Nombre, Estado, AC) VALUES ('BTC', 'Bitcoin', DEFAULT, 'C');
+
+INSERT INTO LIMITESREF (Simbolo) VALUES ('NDAQ');
+INSERT INTO LIMITESREF (Simbolo) VALUES ('BTC');

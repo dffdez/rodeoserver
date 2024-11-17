@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+exports/
+install/
+deprecated/
+certs/
+code/Engine/apikey.py
