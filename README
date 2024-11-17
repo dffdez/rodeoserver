@@ -21,4 +21,4 @@ El directorio 'make' contiene los archivos Dockerfile y el archivo docker-compos
 
 make.sh crea el directorio 'exports' con los archivos para la instalación, que a su vez es comprimido dentro del directorio 'install'.
 
-install.sh carga las imágenes y levanta los contenedores.
+install.sh instala e inicia el servidor.
