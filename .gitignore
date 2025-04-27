@@ -6,3 +6,4 @@ deprecated/
 certs/
 code/Engine/apikey.py
 code/Server/apikey.py
+code/Server/*.pem
