@@ -1,11 +1,16 @@
-from flask import Flask, request, jsonify, make_response, session, send_from_directory
+from flask import Flask, request, jsonify, make_response, session, send_from_directory, Response, abort
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_socketio import SocketIO, emit, send, join_room, leave_room, rooms
 from functools import wraps
+from datetime import timedelta
 import os
+import requests
+import json
 
 import database_api as db
 
+# API key de TwelveData
+from apikey import APIKEY, APIKEYDEMO
 
 IMAGE_FOLDER = 'media/articles/'
 VIDEO_FOLDER = 'media/video/'
@@ -26,6 +31,7 @@ app.config['UPLOAD_FOLDER_DOCUMENTS'] = DOCUMENT_FOLDER
 app.config['UPLOAD_FOLDER_ICON'] = IMAGE_FOLDER_ICON
 
 app.config['SECRET_KEY'] = '959fec02412248ebbdfd23a96eeafa73'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=6)
 jwt = JWTManager(app)
 
 
@@ -359,7 +365,6 @@ def setFavourite():
     return jsonify(), 200
 
 
-
 # deleteFavourite devuelve las acciones favoritas de un usuario
 
 @app.route('/deleteFavourite', methods=['POST'])
@@ -375,6 +380,31 @@ def deleteFavourite():
 
     return jsonify(), 200
 
+
+# verifySymbol comprueba que el símbolo introducido es correcto
+
+@app.route('/verifySymbol', methods=['POST'])
+@jwt_required()
+def verifySymbol():
+
+    data = request.json
+
+    simbolo = data['symbol']
+
+    url = "https://api.twelvedata.com/quote?symbol="+simbolo+"&apikey="+APIKEY
+    
+    result = requests.get(url).content.decode('utf-8')
+    data = json.loads(result)
+
+    response = False
+    if 'code' in data:
+        response = False
+    if 'symbol' in data :
+        response = True
+
+    print(response)
+
+    return jsonify(response), 200
 
 
 # newStock añade una nueva accion/crypto a la base de datos
@@ -556,7 +586,7 @@ def setLimitsRef():
     ssl_apx_value_max = data['ssl_apx_value_max']
     ssl_sal_value_min = data['ssl_apx_value_max']
     
-    limits = db.setLimits(simbolo, e_apx_rsi_min, e_apx_rsi_max, e_apx_stoch_min, e_apx_stoch_max, e_ent_rsi_min,
+    limits = db.setLimitsRef(simbolo, e_apx_rsi_min, e_apx_rsi_max, e_apx_stoch_min, e_apx_stoch_max, e_ent_rsi_min,
                           e_ent_rsi_max, e_ent_stoch_min, e_ent_stoch_max, stp_apx_stoch_min, stp_apx_stoch_max, 
                           stp_sal_stoch_min, ssl_apx_value_min, ssl_apx_value_max, ssl_sal_value_min)
 
@@ -604,18 +634,48 @@ def getVideos():
 # getImage devuelve imagenes almacenadas 
 
 @app.route('/getBlogVideo/<name>', methods=['GET'])
-@jwt_required()
+#@jwt_required()
 def getBlogVideo(name):
 
-    file = name+'.mp4'
-    print(file)
-   
-    return send_from_directory(app.config['UPLOAD_FOLDER_VIDEO'], file, as_attachment=False), 200
+    file_path = os.path.join(app.config['UPLOAD_FOLDER_VIDEO'], f"{name}.mp4")
+    range_header = request.headers.get('Range', None)
+
+    if not range_header:
+        # Si no se solicita un rango, devuelve el archivo completo
+        return Response(open(file_path, 'rb'), mimetype='video/mp4')
+
+    # Procesa el encabezado Range
+    size = os.path.getsize(file_path)
+    byte_start, byte_end = parse_range_header(range_header, size)
+
+    with open(file_path, 'rb') as f:
+        f.seek(byte_start)
+        data = f.read(byte_end - byte_start + 1)
+    
+    response = Response(data, status=206, mimetype='video/mp4')
+    response.headers['Content-Range'] = f"bytes {byte_start}-{byte_end}/{size}"
+    response.headers['Accept-Ranges'] = 'bytes'
+    response.headers['Content-Length'] = str(byte_end - byte_start + 1)
+
+    return response
+
+def parse_range_header(range_header, file_size):
+    
+    #Procesa el encabezado Range y devuelve los bytes inicio y fin.
+    try:
+        range_match = range_header.split("=")[1]
+        byte_start, byte_end = range_match.split("-")
+        byte_start = int(byte_start) if byte_start else 0
+        byte_end = int(byte_end) if byte_end else file_size - 1
+        return byte_start, min(byte_end, file_size - 1)
+    except (ValueError, IndexError):
+        abort(416, "Invalid Range")
+
 
 # getImage devuelve imagenes almacenadas 
 
 @app.route('/getBlogDocument/<name>', methods=['GET'])
-@jwt_required()
+#@jwt_required()
 def getBlogDocument(name):
 
     file = name+'.pdf'
