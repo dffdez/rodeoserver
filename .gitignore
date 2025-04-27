@@ -5,3 +5,4 @@ install/
 deprecated/
 certs/
 code/Engine/apikey.py
+code/Server/apikey.py
