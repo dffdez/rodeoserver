@@ -19,7 +19,7 @@
   <h3 align="center">Rodeo Server</h3>
 
    <p align="center">
-    Desarrollo de una aplicación móvil para la formación y seguimiento del mercado bursátil
+    Desarrollo de una aplicación móvil para el seguimiento eficiente de movimientos en bolsa
     <br />
     <br />
     <a href="https://github.com/dffdez/rodeoserver"><strong>Explore the docs »</strong></a>
